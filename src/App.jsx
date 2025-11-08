@@ -1,27 +1,24 @@
-import React from 'react'
-import Navbar from './Components/Navbar';
-import HeroSection from './Components/HeroSection';
-import Feature from './Components/Feature';
-import MoveComponentFirst from './Components/MoveComponentFirst'
-import StudySection from './Components/StudySection';
-import CustomerSection from './Components/CustomerSection';
-import ContactUs from './Components/ContactUs';
-import Footer from './Components/Footer';
-import MoveComponentSecond from './Components/MoveComponentSecond';
 
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import Home from "./pages/Home"
+import PatientRegisterForm from "./pages/RegisterForm"
+import AppointmentForm from "./pages/Appoinment"
+import Dashboard from "./pages/Dashboard"
 
 const App = () => {
   return (
     <>
-      <Navbar/>
-      <HeroSection/>
-      <Feature/>
-      <MoveComponentFirst/>
-      <MoveComponentSecond/>
-      <StudySection/>
-      <CustomerSection/>
-      <ContactUs/>
-      <Footer/>
+   <BrowserRouter>
+   
+   <Routes>
+  <Route  path="/" element={  <Home/> } />
+  <Route  path="/register" element={  <PatientRegisterForm/> } />
+  <Route  path="/apoinment" element={  <AppointmentForm/> } />
+   <Route path="/dashboard" element={<Dashboard />} />
+   </Routes>
+   </BrowserRouter>
+     
+      
     </>
   )
 }
