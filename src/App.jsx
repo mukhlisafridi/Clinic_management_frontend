@@ -1,26 +1,42 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './Components/ProtectedRoute';
+import PublicRoute from './Components/PublicRoute';  
 
-
-// Import with CORRECT file names
+// Import pages
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
 import RegisterForm from './pages/RegisterForm';
 import Appoinment from './pages/Appoinment';
-import Dashboard from './pages/Dashboard';  // ✅ Correct spelling now
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-       
         <Routes>
-          {/* Public Routes */}
+          {/* Public Route - Anyone can access */}
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterForm />} />
+          
+          {/* Login/Register - Only for non-logged-in users */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <RegisterForm />
+              </PublicRoute>
+            }
+          />
 
           {/* Protected Routes - Patient Only */}
           <Route
@@ -47,4 +63,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

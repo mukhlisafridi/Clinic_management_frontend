@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+const PublicRoute = ({ children }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
@@ -16,15 +16,18 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+  // Agar user logged in hai, to redirect karo
+  if (isAuthenticated) {
+    // Admin/Doctor ko dashboard pe bhejo
+    if (user?.role === 'Admin' || user?.role === 'Doctor') {
+      return <Navigate to="/dashboard" replace />;
+    }
+    // Patient ko home page pe bhejo
     return <Navigate to="/" replace />;
   }
 
+  // Agar not logged in, to login/register page dikhao
   return children;
 };
 
-export default ProtectedRoute;
+export default PublicRoute;
