@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const HospitalHeroSection = () => {
   return (
@@ -17,7 +18,8 @@ const HospitalHeroSection = () => {
               Experience compassionate care with our expert team of healthcare professionals dedicated to your well-being.
             </p>
             
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg transform transition hover:scale-105 duration-200 flex items-center gap-2">
+           <Link to ="/appointment">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 mt-3 rounded-lg shadow-lg transform transition hover:scale-105 duration-200 flex items-center gap-2">
               <svg 
                 className="w-5 h-5" 
                 fill="none" 
@@ -33,6 +35,8 @@ const HospitalHeroSection = () => {
               </svg>
               Get Appointment
             </button>
+           
+           </Link>
             
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 md:gap-6 pt-8">

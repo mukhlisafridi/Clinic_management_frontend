@@ -1,26 +1,50 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './Components/ProtectedRoute';
 
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import Home from "./pages/Home"
-import PatientRegisterForm from "./pages/RegisterForm"
-import AppointmentForm from "./pages/Appoinment"
-import Dashboard from "./pages/Dashboard"
 
-const App = () => {
+// Import with CORRECT file names
+import Home from './pages/Home';
+import LoginPage from './pages/LoginPage';
+import RegisterForm from './pages/RegisterForm';
+import Appoinment from './pages/Appoinment';
+import Dashboard from './pages/Dashboard';  // ✅ Correct spelling now
+
+function App() {
   return (
-    <>
-   <BrowserRouter>
-   
-   <Routes>
-  <Route  path="/" element={  <Home/> } />
-  <Route  path="/register" element={  <PatientRegisterForm/> } />
-  <Route  path="/apoinment" element={  <AppointmentForm/> } />
-   <Route path="/dashboard" element={<Dashboard />} />
-   </Routes>
-   </BrowserRouter>
-     
-      
-    </>
-  )
+    <AuthProvider>
+      <Router>
+       
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterForm />} />
+
+          {/* Protected Routes - Patient Only */}
+          <Route
+            path="/appointment"
+            element={
+              <ProtectedRoute allowedRoles={['Patient']}>
+                <Appoinment />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Routes - Admin/Doctor Only */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Doctor']}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
 }
 
 export default App
