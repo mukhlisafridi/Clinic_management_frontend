@@ -1,9 +1,8 @@
 
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './Components/ProtectedRoute';
-import PublicRoute from './Components/PublicRoute';  
+import PublicRoute from './Components/PublicRoute';
 
 // Import pages
 import Home from './pages/Home';
@@ -11,16 +10,18 @@ import LoginPage from './pages/LoginPage';
 import RegisterForm from './pages/RegisterForm';
 import Appoinment from './pages/Appoinment';
 import Dashboard from './pages/Dashboard';
-
+import DoctorDashboard from './pages/DoctorsDashboard';
+import ContactUs from './pages/ContactUs';  
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Route - Anyone can access */}
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
+          <Route path="/contact" element={<ContactUs />} />  {/* ✅ Add Route */}
           
-          {/* Login/Register - Only for non-logged-in users */}
+          {/* Login/Register */}
           <Route
             path="/login"
             element={
@@ -38,7 +39,7 @@ function App() {
             }
           />
 
-          {/* Protected Routes - Patient Only */}
+          {/* Protected Routes - Patient */}
           <Route
             path="/appointment"
             element={
@@ -48,12 +49,22 @@ function App() {
             }
           />
 
-          {/* Protected Routes - Admin/Doctor Only */}
+          {/* Protected Routes - Admin */}
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute allowedRoles={['Admin', 'Doctor']}>
+              <ProtectedRoute allowedRoles={['Admin']}>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Routes - Doctor */}
+          <Route
+            path="/doctor/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['Doctor']}>
+                <DoctorDashboard />
               </ProtectedRoute>
             }
           />

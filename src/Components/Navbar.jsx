@@ -126,7 +126,11 @@ const Navbar = () => {
                 }`}
                 onClick={() => {
                   setActiveItem("Dashboard");
-                  navigate("/dashboard");
+                  if (user?.role === "Doctor") {
+                    navigate("/doctor/dashboard");
+                  } else {
+                    navigate("/dashboard");
+                  }
                 }}
               >
                 Dashboard
@@ -199,13 +203,13 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Close Button - MORE PADDING FROM RIGHT */}
+      {/* Mobile Close Button - RESPONSIVE PADDING */}
       {isOpen && (
         <button
           onClick={() => setIsOpen(false)}
-          className="lg:hidden fixed top-4 right-16 z-[60] focus:outline-none hover:opacity-70 transition-opacity"
+          className="lg:hidden fixed top-4 right-6 sm:right-10 z-[60] focus:outline-none hover:opacity-70 transition-opacity"
         >
-          <FaTimes className="text-3xl text-gray-900" />
+          <FaTimes className="text-2xl sm:text-3xl text-gray-900" />
         </button>
       )}
 
@@ -265,7 +269,11 @@ const Navbar = () => {
                 onClick={() => {
                   setActiveItem("Dashboard");
                   setIsOpen(false);
-                  navigate("/dashboard");
+                  if (user?.role === "Doctor") {
+                    navigate("/doctor/dashboard");
+                  } else {
+                    navigate("/dashboard");
+                  }
                 }}
               >
                 Dashboard

@@ -18,15 +18,19 @@ const PublicRoute = ({ children }) => {
 
   // Agar user logged in hai, to redirect karo
   if (isAuthenticated) {
-    // Admin/Doctor ko dashboard pe bhejo
-    if (user?.role === 'Admin' || user?.role === 'Doctor') {
+    // Admin ko dashboard pe bhejo
+    if (user?.role === 'Admin') {
       return <Navigate to="/dashboard" replace />;
     }
-    // Patient ko home page pe bhejo
+    // ✅ Doctor ko doctor dashboard pe bhejo
+    if (user?.role === 'Doctor') {
+      return <Navigate to="/doctor/dashboard" replace />;
+    }
+    // Patient ko home bhejo
     return <Navigate to="/" replace />;
   }
 
-  // Agar not logged in, to login/register page dikhao
+  // Not logged in, show login/register page
   return children;
 };
 

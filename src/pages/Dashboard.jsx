@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Check, X, Clock, User, Calendar, Mail, Lock, Stethoscope, MessageSquare, Users } from 'lucide-react';
+import { Plus, Check, X, Clock, User, Calendar, Mail, Lock, Stethoscope, MessageSquare, Users, Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import axios from '../utils/axios'; // ✅ Import axios
+import axios from '../utils/axios';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -15,6 +15,7 @@ export default function Dashboard() {
   const [doctors, setDoctors] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [newDoctor, setNewDoctor] = useState({
     name: '',
     email: '',
@@ -31,10 +32,10 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  // ✅ UPDATED: Load doctors from database
+  // ✅ Load data from backend
   const loadData = async () => {
     try {
-      // ✅ Load doctors from backend API
+      // Load doctors from backend
       const doctorsResponse = await axios.get('/user/doctors');
       if (doctorsResponse.data.success) {
         const doctorsData = doctorsResponse.data.doctors.map(doc => ({
@@ -46,15 +47,16 @@ export default function Dashboard() {
         setDoctors(doctorsData);
       }
 
-      // Load appointments and messages from localStorage
-      const appointmentsData = localStorage.getItem('appointments');
-      const messagesData = localStorage.getItem('messages');
-      
-      if (appointmentsData) setAppointments(JSON.parse(appointmentsData));
-      if (messagesData) setMessages(JSON.parse(messagesData));
+      // ✅ Load messages from backend
+      await fetchMessages();
 
-      // Sample data if not exists
-      if (!appointmentsData) {
+      // Load appointments from localStorage (temporary)
+      const appointmentsData = localStorage.getItem('appointments');
+      
+      if (appointmentsData) {
+        setAppointments(JSON.parse(appointmentsData));
+      } else {
+        // Sample appointments
         const sampleAppointments = [
           { id: 1, patientName: 'Ali Hassan', doctorId: 1, date: '2025-11-10', status: 'pending', visited: false },
           { id: 2, patientName: 'Sara Ahmed', doctorId: 2, date: '2025-11-09', status: 'accepted', visited: true }
@@ -62,18 +64,26 @@ export default function Dashboard() {
         setAppointments(sampleAppointments);
         localStorage.setItem('appointments', JSON.stringify(sampleAppointments));
       }
-
-      if (!messagesData) {
-        const sampleMessages = [
-          { id: 1, from: 'Ali Hassan', message: 'I need to reschedule my appointment', read: false },
-          { id: 2, from: 'Sara Ahmed', message: 'Thank you for the treatment', read: false }
-        ];
-        setMessages(sampleMessages);
-        localStorage.setItem('messages', JSON.stringify(sampleMessages));
-      }
     } catch (error) {
       console.error('Error loading data:', error);
-      toast.error('Failed to load doctors from database');
+      toast.error('Failed to load data');
+    }
+  };
+
+  // ✅ Fetch messages from backend
+  const fetchMessages = async () => {
+    try {
+      setLoadingMessages(true);
+      const response = await axios.get('/message/getall');
+      
+      if (response.data.success) {
+        setMessages(response.data.messages || []);
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      toast.error('Failed to load messages');
+    } finally {
+      setLoadingMessages(false);
     }
   };
 
@@ -81,13 +91,12 @@ export default function Dashboard() {
     localStorage.setItem(key, JSON.stringify(data));
   };
 
-  // ✅ UPDATED: Add doctor to database
+  // Add doctor to database
   const addDoctor = async (e) => {
     e.preventDefault();
     
     if (newDoctor.name && newDoctor.email && newDoctor.password && newDoctor.department) {
       try {
-        // ✅ Call backend API
         const response = await axios.post('/user/doctor/addnew/simple', {
           name: newDoctor.name,
           email: newDoctor.email,
@@ -96,7 +105,6 @@ export default function Dashboard() {
         });
 
         if (response.data.success) {
-          // ✅ Add doctor to state
           const newDoctorData = {
             id: response.data.doctor.id,
             name: response.data.doctor.name,
@@ -114,14 +122,7 @@ export default function Dashboard() {
         }
       } catch (error) {
         console.error("Error adding doctor:", error);
-        
-        if (error.response) {
-          toast.error(error.response.data.message || 'Failed to add doctor!');
-        } else if (error.request) {
-          toast.error("Server not responding. Please try again.");
-        } else {
-          toast.error("An error occurred. Please try again.");
-        }
+        toast.error(error.response?.data?.message || 'Failed to add doctor!');
       }
     } else {
       toast.error('Please fill all fields');
@@ -148,14 +149,6 @@ export default function Dashboard() {
     toast.success(`Appointment ${status}!`);
   };
 
-  const markMessageRead = (id) => {
-    const updated = messages.map(msg => 
-      msg.id === id ? { ...msg, read: true } : msg
-    );
-    setMessages(updated);
-    saveData('messages', updated);
-  };
-
   const getDoctorName = (doctorId) => {
     const doctor = doctors.find(d => d.id === doctorId);
     return doctor ? doctor.name : 'Unknown';
@@ -165,10 +158,15 @@ export default function Dashboard() {
   const getPendingCount = () => appointments.filter(a => a.status === 'pending').length;
   const getAcceptedCount = () => appointments.filter(a => a.status === 'accepted').length;
 
-  const handleLogout = () => {
-    logout();
-    toast.success('Logged out successfully!');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await axios.get('/user/admin/logout');
+      logout();
+      toast.success('Logged out successfully!');
+      navigate('/login');
+    } catch (error) {
+      toast.error('Logout failed!');
+    }
   };
 
   return (
@@ -267,7 +265,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        {/* ✅ 5 Stats Cards - Including Total Doctors */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
@@ -295,13 +294,23 @@ export default function Dashboard() {
               <Check className="w-12 h-12 text-green-300" />
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+          {/* ✅ TOTAL DOCTORS CARD - RESTORED */}
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-cyan-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm">Total Doctors</p>
-                <p className="text-3xl font-bold text-blue-600">{doctors.length}</p>
+                <p className="text-3xl font-bold text-cyan-600">{doctors.length}</p>
               </div>
-              <Users className="w-12 h-12 text-blue-300" />
+              <Users className="w-12 h-12 text-cyan-300" />
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Messages</p>
+                <p className="text-3xl font-bold text-purple-600">{messages.length}</p>
+              </div>
+              <MessageSquare className="w-12 h-12 text-purple-300" />
             </div>
           </div>
         </div>
@@ -338,9 +347,9 @@ export default function Dashboard() {
               }`}
             >
               Messages
-              {messages.filter(m => !m.read).length > 0 && (
+              {messages.length > 0 && (
                 <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {messages.filter(m => !m.read).length}
+                  {messages.length}
                 </span>
               )}
             </button>
@@ -465,10 +474,9 @@ export default function Dashboard() {
                         placeholder="Password"
                       />
                     </div>
-                    {/* ✅ Department Dropdown */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <Stethoscope className="w-4 h-4 inline mr-1" /> Department *
+                        <Stethoscope className="w-4 h-4 inline mr-1" /> Department
                       </label>
                       <select
                         value={newDoctor.department}
@@ -531,35 +539,66 @@ export default function Dashboard() {
           {/* Messages Tab */}
           {activeTab === 'messages' && (
             <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Patient Messages</h2>
-              <div className="space-y-4">
-                {messages.map(msg => (
-                  <div
-                    key={msg.id}
-                    className={`border rounded-lg p-4 hover:shadow-md transition cursor-pointer ${
-                      msg.read ? 'border-gray-200 bg-white' : 'border-blue-300 bg-blue-50'
-                    }`}
-                    onClick={() => markMessageRead(msg.id)}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        msg.read ? 'bg-gray-200' : 'bg-blue-200'
-                      }`}>
-                        <MessageSquare className={`w-6 h-6 ${msg.read ? 'text-gray-600' : 'text-blue-600'}`} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="font-semibold text-gray-800">{msg.from}</p>
-                          {!msg.read && (
-                            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded">New</span>
-                          )}
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-800">Contact Messages</h2>
+                <button
+                  onClick={fetchMessages}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+
+              {loadingMessages ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading messages...</p>
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="text-center py-12">
+                  <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg">No messages yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map(msg => (
+                    <div
+                      key={msg._id}
+                      className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition bg-white"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-blue-100">
+                          <User className="w-6 h-6 text-blue-600" />
                         </div>
-                        <p className="text-gray-600">{msg.message}</p>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-bold text-gray-800">
+                              {msg.firstName} {msg.lastName}
+                            </h3>
+                            <span className="text-xs text-gray-500">
+                              {new Date(msg.createdAt || Date.now()).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className="space-y-1 text-sm">
+                            <p className="flex items-center gap-2 text-gray-600">
+                              <Mail className="w-4 h-4" /> {msg.email}
+                            </p>
+                            <p className="flex items-center gap-2 text-gray-600">
+                              <Phone className="w-4 h-4" /> {msg.phone}
+                            </p>
+                          </div>
+                          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                            <p className="text-gray-700">{msg.message}</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

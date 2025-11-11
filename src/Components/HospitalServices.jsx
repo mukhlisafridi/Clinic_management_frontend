@@ -1,11 +1,12 @@
+
 import React from "react";
 
 const HospitalServices = () => {
   return (
     <>
-      <div className="bg-gray-50 py-16 px-4">
+      <div className="bg-gray-50 py-12 md:py-16 px-4">
         {/* Section Heading */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 md:mb-12">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
             Our Medical Services
           </h1>

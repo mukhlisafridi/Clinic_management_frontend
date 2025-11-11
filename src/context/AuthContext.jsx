@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { getTokenFromCookies, clearAuthCookies } from '../utils/cookieHelper';
 
 const AuthContext = createContext();
 
@@ -9,22 +10,36 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
+    // Check for token in cookies
+    const cookieToken = getTokenFromCookies();
+    
+    // User data localStorage se (ya backend se fetch kar sakte ho)
     const storedUser = localStorage.getItem('user');
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
+    if (cookieToken && storedUser) {
+      setToken(cookieToken);
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
+    } else if (cookieToken && !storedUser) {
+      // Agar cookie hai but user data nahi, to logout kar do
+      clearAuthCookies();
+      setToken(null);
+      setUser(null);
+      setIsAuthenticated(false);
     }
+    
     setIsLoading(false);
   }, []);
 
-  const login = (userData, userToken) => {
+  const login = (userData) => {
+    // Token already cookie mein hai backend se
+    const cookieToken = getTokenFromCookies();
+    
     setUser(userData);
-    setToken(userToken);
+    setToken(cookieToken);
     setIsAuthenticated(true);
-    localStorage.setItem('token', userToken);
+    
+    // Only user data localStorage mein save karo (token cookies mein hai)
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
@@ -32,7 +47,9 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('token');
+    
+    // Clear cookies aur localStorage
+    clearAuthCookies();
     localStorage.removeItem('user');
   };
 
@@ -54,4 +71,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
-}
+};

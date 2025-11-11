@@ -1,4 +1,3 @@
-
 import React, { useState } from "react"; 
 import { motion } from "framer-motion";
 import Slider from "react-slick";
@@ -53,6 +52,12 @@ const DoctorsSection = () => {
     autoplaySpeed: 3000,
     responsive: [
       {
+        breakpoint: 1280,
+        settings: {
+          slidesToShow: 3,
+        },
+      },
+      {
         breakpoint: 1024,
         settings: {
           slidesToShow: 2,
@@ -64,56 +69,54 @@ const DoctorsSection = () => {
           slidesToShow: 1,
         },
       },
-      {
-        breakpoint: 1280,
-        settings: {
-          slidesToShow: 3,
-        },
-      },
     ],
   };
 
   return (
-    <div className="relative px-4 lg:px-6 py-16 bg-white">
+    <div className="relative px-4 sm:px-6 lg:px-8 py-12 md:py-16 bg-white">
       {/* Heading and Paragraph */}
-      <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Meet Our Expert Doctors</h2>
-        <p className="text-base md:text-lg text-gray-600 mt-4">
+      <div className="text-center mb-10 md:mb-12 max-w-4xl mx-auto">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
+          Meet Our Expert Doctors
+        </h2>
+        <p className="text-sm sm:text-base md:text-lg text-gray-600">
           Highly qualified medical professionals dedicated to your health and well-being
         </p>
       </div>
 
-      <Slider {...settings}>
-        {doctors.map((doctor, index) => (
-          <motion.div
-            key={index}
-            className="px-4 py-6"
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-blue-100">
-              <div className="relative inline-block mb-4">
-                <img
-                  src={doctor.pic}
-                  alt={doctor.name}
-                  className="w-32 h-32 rounded-full mx-auto object-cover border-4 border-blue-200"
-                />
-                <div className="absolute bottom-0 right-0 w-8 h-8 bg-green-500 rounded-full border-4 border-white"></div>
+      <div className="max-w-7xl mx-auto">
+        <Slider {...settings}>
+          {doctors.map((doctor, index) => (
+            <motion.div
+              key={index}
+              className="px-2 sm:px-3 md:px-4 py-4 md:py-6"
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="bg-gradient-to-br from-blue-50 to-white p-5 md:p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-blue-100">
+                <div className="relative inline-block mb-4">
+                  <img
+                    src={doctor.pic}
+                    alt={doctor.name}
+                    className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full mx-auto object-cover border-4 border-blue-200"
+                  />
+                  <div className="absolute bottom-0 right-0 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-green-500 rounded-full border-2 sm:border-4 border-white"></div>
+                </div>
+                
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{doctor.name}</h3>
+                <p className="text-sm sm:text-base text-blue-600 font-semibold mb-1">{doctor.specialization}</p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-4">{doctor.experience}</p>
+                
+                <button className="mt-2 md:mt-4 bg-blue-600 hover:bg-blue-700 text-white px-5 md:px-6 py-2 rounded-lg transition-all duration-300 text-xs sm:text-sm font-semibold">
+                  Book Appointment
+                </button>
               </div>
-              
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{doctor.name}</h3>
-              <p className="text-blue-600 font-semibold mb-1">{doctor.specialization}</p>
-              <p className="text-gray-500 text-sm">{doctor.experience}</p>
-              
-              <button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all duration-300 text-sm font-semibold">
-                Book Appointment
-              </button>
-            </div>
-          </motion.div>
-        ))}
-      </Slider>
+            </motion.div>
+          ))}
+        </Slider>
+      </div>
     </div>
   );
 };

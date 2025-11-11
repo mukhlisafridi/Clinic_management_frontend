@@ -1,68 +1,47 @@
-
 import React, { useState } from 'react';
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import axios from "../utils/axios";
-import toast, { Toaster } from "react-hot-toast";
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { toast, Toaster } from 'react-hot-toast';
+import basURL from '../utils/axios.js';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Use Context API
+  const { login } = useAuth();
   
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    role: 'Patient'
-  });
-
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Patient');
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
 
     try {
-      const response = await axios.post("/user/login", formData);
+      const response = await basURL.post(
+        '/user/login',
+        { email, password, role }
+      );
 
-      if (response.data.success) {
-        toast.success(response.data.message || "Login successful!");
-        
-        // Use Context API to set auth state
-        login(response.data.user, response.data.token);
-
-        const userRole = response.data.user.role;
-        
-        setTimeout(() => {
-          if (userRole === "Patient") {
-            navigate("/");
-          } else if (userRole === "Admin") {
-            navigate("/dashboard");
-          } else {
-            navigate("/register");
-          }
-        }, 1000);
-      }
-    } catch (error) {
-      console.error("Login Error:", error);
+      const userData = response.data.user;
+      login(userData);
       
-      if (error.response) {
-        toast.error(error.response.data.message || "Login failed!");
-      } else if (error.request) {
-        toast.error("Server not responding. Please try again later.");
+      toast.success('Login successful!');
+      
+      // ✅ Updated redirect logic - Three separate routes
+      if (userData.role === 'Admin') {
+        navigate('/dashboard');  // Admin Dashboard
+      } else if (userData.role === 'Doctor') {
+        navigate('/doctor/dashboard');  // ✅ Doctor Dashboard
       } else {
-        toast.error("An error occurred. Please try again.");
+        navigate('/');  // Patient Home
       }
+      
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Login failed!');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -74,7 +53,6 @@ const LoginPage = () => {
         
         {/* Left Side - Login Form */}
         <div className="w-full lg:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-          {/* Header */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-blue-900 mb-2">
               Welcome Back!
@@ -84,8 +62,7 @@ const LoginPage = () => {
             </p>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
             <style>{`
               input:-webkit-autofill,
               input:-webkit-autofill:hover,
@@ -112,10 +89,10 @@ const LoginPage = () => {
                   type="email"
                   id="email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleChange}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={isLoading}
+                  disabled={loading}
                   autoComplete="off"
                   className="w-full pl-10 pr-4 py-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-blue-900 bg-white disabled:bg-gray-50"
                   placeholder="your.email@example.com"
@@ -137,10 +114,10 @@ const LoginPage = () => {
                 <select
                   id="role"
                   name="role"
-                  value={formData.role}
-                  onChange={handleChange}
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
                   required
-                  disabled={isLoading}
+                  disabled={loading}
                   className="w-full pl-10 pr-4 py-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-blue-900 bg-white appearance-none cursor-pointer disabled:bg-gray-50"
                   style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 0.75rem center", backgroundSize: "1.25em 1.25em" }}
                 >
@@ -166,10 +143,10 @@ const LoginPage = () => {
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   name="password"
-                  value={formData.password}
-                  onChange={handleChange}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={isLoading}
+                  disabled={loading}
                   autoComplete="off"
                   className="w-full pl-10 pr-12 py-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-blue-900 bg-white disabled:bg-gray-50"
                   placeholder="Enter your password"
@@ -177,7 +154,7 @@ const LoginPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLoading}
+                  disabled={loading}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-700 disabled:opacity-50 transition"
                 >
                   {showPassword ? (
@@ -204,10 +181,10 @@ const LoginPage = () => {
             {/* Login Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={loading}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transform transition hover:scale-[1.02] duration-200 flex items-center justify-center gap-2 disabled:bg-blue-400 disabled:cursor-not-allowed disabled:transform-none mt-6"
             >
-              {isLoading ? (
+              {loading ? (
                 <>
                   <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -260,4 +237,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage
+export default LoginPage;
