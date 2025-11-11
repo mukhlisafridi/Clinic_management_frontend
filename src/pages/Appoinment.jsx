@@ -28,7 +28,7 @@ const AppointmentForm = () => {
     address: ""
   });
 
-  // ✅ Load doctors from database
+  
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
@@ -124,7 +124,7 @@ const AppointmentForm = () => {
         });
         setFilteredDoctors([]);
         
-        // ✅ Redirect to home after 2 seconds
+        
         setTimeout(() => {
           navigate("/");
         }, 2000);
@@ -348,7 +348,6 @@ const AppointmentForm = () => {
                 />
               </div>
 
-              {/* ✅ Department - Dynamic from Database */}
               <div>
                 <label htmlFor="department" className="block text-xs font-semibold text-gray-900 mb-0.5">
                   Department *
@@ -372,7 +371,6 @@ const AppointmentForm = () => {
                 </select>
               </div>
 
-              {/* ✅ Doctor Dropdown - Filtered from Database */}
               <div className="sm:col-span-2">
                 <label htmlFor="doctorSelect" className="block text-xs font-semibold text-gray-900 mb-0.5">
                   Select Doctor *

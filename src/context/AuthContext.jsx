@@ -10,36 +10,33 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for token in cookies
-    const cookieToken = getTokenFromCookies();
-    
-    // User data localStorage se (ya backend se fetch kar sakte ho)
-    const storedUser = localStorage.getItem('user');
+    initializeAuth();
+  }, []);
 
+  const initializeAuth = async () => {
+    const cookieToken = getTokenFromCookies();
+    const storedUser = localStorage.getItem('user');
+    
     if (cookieToken && storedUser) {
       setToken(cookieToken);
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
     } else if (cookieToken && !storedUser) {
-      // Agar cookie hai but user data nahi, to logout kar do
       clearAuthCookies();
-      setToken(null);
-      setUser(null);
-      setIsAuthenticated(false);
+    } else if (!cookieToken && storedUser) {
+      localStorage.removeItem('user');
     }
     
     setIsLoading(false);
-  }, []);
+  };
 
   const login = (userData) => {
-    // Token already cookie mein hai backend se
     const cookieToken = getTokenFromCookies();
     
     setUser(userData);
     setToken(cookieToken);
     setIsAuthenticated(true);
     
-    // Only user data localStorage mein save karo (token cookies mein hai)
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
@@ -48,7 +45,6 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setIsAuthenticated(false);
     
-    // Clear cookies aur localStorage
     clearAuthCookies();
     localStorage.removeItem('user');
   };

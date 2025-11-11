@@ -11,7 +11,6 @@ const instance = axios.create({
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle common errors
     if (error.response?.status === 401) {
       console.error('Unauthorized - Please login again');
     }
@@ -19,4 +18,4 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance;
+export default instance

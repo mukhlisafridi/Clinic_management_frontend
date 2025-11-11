@@ -16,21 +16,16 @@ const PublicRoute = ({ children }) => {
     );
   }
 
-  // Agar user logged in hai, to redirect karo
   if (isAuthenticated) {
-    // Admin ko dashboard pe bhejo
     if (user?.role === 'Admin') {
       return <Navigate to="/dashboard" replace />;
     }
-    // ✅ Doctor ko doctor dashboard pe bhejo
     if (user?.role === 'Doctor') {
       return <Navigate to="/doctor/dashboard" replace />;
     }
-    // Patient ko home bhejo
     return <Navigate to="/" replace />;
   }
 
-  // Not logged in, show login/register page
   return children;
 };
 

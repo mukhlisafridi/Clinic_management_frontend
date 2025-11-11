@@ -29,13 +29,12 @@ const LoginPage = () => {
       
       toast.success('Login successful!');
       
-      // ✅ Updated redirect logic - Three separate routes
       if (userData.role === 'Admin') {
-        navigate('/dashboard');  // Admin Dashboard
+        navigate('/dashboard');
       } else if (userData.role === 'Doctor') {
-        navigate('/doctor/dashboard');  // ✅ Doctor Dashboard
+        navigate('/doctor/dashboard');
       } else {
-        navigate('/');  // Patient Home
+        navigate('/');
       }
       
     } catch (error) {
@@ -74,7 +73,6 @@ const LoginPage = () => {
               }
             `}</style>
 
-            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-blue-900 mb-1.5">
                 Email Address
@@ -100,7 +98,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Role Selection */}
             <div>
               <label htmlFor="role" className="block text-sm font-semibold text-blue-900 mb-1.5">
                 Login As
@@ -128,7 +125,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-blue-900 mb-1.5">
                 Password
@@ -171,14 +167,12 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Forgot Password */}
             <div className="flex justify-end">
               <a href="#" className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition">
                 Forgot password?
               </a>
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
               disabled={loading}
@@ -202,7 +196,6 @@ const LoginPage = () => {
               )}
             </button>
 
-            {/* Register Link */}
             <div className="text-center pt-4">
               <p className="text-sm text-blue-800">
                 Don't have an account?{' '}

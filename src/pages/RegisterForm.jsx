@@ -7,7 +7,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 const PatientRegisterForm = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Use Context API
+  const { login } = useAuth(); 
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -41,7 +41,7 @@ const PatientRegisterForm = () => {
       if (response.data.success) {
         toast.success(response.data.message || "Registration successful!");
         
-        // Use Context API to set auth state
+     
         login(response.data.user, response.data.token);
 
         setFormData({
