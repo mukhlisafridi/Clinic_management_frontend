@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './Components/ProtectedRoute';
 import PublicRoute from './Components/PublicRoute';
+import Navbar from './Components/Navbar';
 
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
@@ -18,12 +18,15 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="overflow-x-hidden">
+          {/* ✅ Navbar INSIDE Router - har page pe show hoga */}
+          <Navbar />
+          
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/contact" element={<ContactUs />} />
             
-            {/* Login/Register - Only for non-logged-in users */}
+            {/* Login/Register */}
             <Route
               path="/login"
               element={
@@ -41,7 +44,7 @@ function App() {
               }
             />
 
-            {/* Protected Routes - Patient Only */}
+            {/* Protected - Patient */}
             <Route
               path="/appointment"
               element={
@@ -51,7 +54,7 @@ function App() {
               }
             />
 
-            {/* Protected Routes - Admin Only */}
+            {/* Protected - Admin */}
             <Route
               path="/dashboard"
               element={
@@ -61,7 +64,7 @@ function App() {
               }
             />
 
-            {/* Protected Routes - Doctor Only */}
+            {/* Protected - Doctor */}
             <Route
               path="/doctor/dashboard"
               element={

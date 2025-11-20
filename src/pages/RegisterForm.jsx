@@ -75,7 +75,9 @@ const PatientRegisterForm = () => {
   };
 
   return (
+    
     <div className="bg-gradient-to-br from-blue-50 via-white to-blue-50 h-screen flex items-center justify-center overflow-hidden">
+    
       <Toaster position="top-right" reverseOrder={false} />
       
       <div className="max-w-6xl w-full mx-4 bg-white rounded-xl shadow-2xl overflow-hidden flex max-h-[95vh]">
