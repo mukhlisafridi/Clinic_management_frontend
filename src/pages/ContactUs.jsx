@@ -29,7 +29,6 @@ const ContactUs = () => {
       
       toast.success(response.data.message || 'Message sent successfully!');
       
-      // Reset form
       setFormData({
         firstName: '',
         lastName: '',
@@ -47,13 +46,15 @@ const ContactUs = () => {
 
   return (
     <>
+      {/* ✅ Navbar OUTSIDE - sabse upar */}
+      <Navbar />
       
-      <div className="h-screen  bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4 overflow-hidden">
-        <Navbar/>
+      {/* ✅ pt-16 for navbar space */}
+      <div className="h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4 overflow-hidden pt-16">
         <Toaster position="top-right" reverseOrder={false} />
         
         {/* Two Column Layout */}
-        <div className="max-w-4xl w-full bg-white rounded-xl shadow-2xl overflow-hidden flex h-[85vh]">
+        <div className="max-w-4xl w-full bg-white rounded-xl shadow-2xl overflow-hidden flex h-[80vh]">
           
           {/* Left Side - Contact Form */}
           <div className="w-full lg:w-1/2 p-6 md:p-8 flex flex-col justify-center">
@@ -69,7 +70,7 @@ const ContactUs = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3">
-            
+              {/* ✅ Fix autofill styling */}
               <style>{`
                 input:-webkit-autofill,
                 input:-webkit-autofill:hover,
@@ -87,7 +88,7 @@ const ContactUs = () => {
               `}</style>
 
               {/* First Name & Last Name */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
                     First Name
