@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './Components/ProtectedRoute';
 import PublicRoute from './Components/PublicRoute';
-import Navbar from './Components/Navbar';
 
 import Home from './pages/Home';
 import LoginPage from './pages/LoginPage';
@@ -18,8 +17,6 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="overflow-x-hidden">
-          {/* ✅ Navbar INSIDE Router - har page pe show hoga */}
-          <Navbar />
           
           <Routes>
             {/* Public Routes */}

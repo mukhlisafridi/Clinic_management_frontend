@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import basURL from '../utils/axios';
-import Navbar from '../Components/Navbar';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -47,7 +46,7 @@ const ContactUs = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="h-screen  bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4 overflow-hidden">
         <Toaster position="top-right" reverseOrder={false} />
         
