@@ -33,7 +33,6 @@ const Navbar = () => {
     setActiveItem(item);
     setIsOpen(false);
     
-    // Navigate based on item
     if (item === "Home") {
       navigate("/");
     } else if (item === "Contact Us") {
@@ -63,6 +62,20 @@ const Navbar = () => {
   const handleRegisterClick = () => {
     setIsOpen(false);
     navigate("/register");
+  };
+
+  // ✅ Dashboard navigation based on role
+  const handleDashboardClick = () => {
+    setActiveItem("Dashboard");
+    setIsOpen(false);
+    
+    if (user?.role === "Admin") {
+      navigate("/dashboard");
+    } else if (user?.role === "Doctor") {
+      navigate("/doctor/dashboard");
+    } else if (user?.role === "Patient") {
+      navigate("/patient/dashboard");  // ✅ Patient Dashboard
+    }
   };
 
   return (
@@ -100,7 +113,6 @@ const Navbar = () => {
               >
                 {item}
               </button>
-              {/* Underline with smooth transition */}
               <div 
                 className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300 ease-in-out transform origin-center ${
                   scrolled ? 'bg-blue-600' : 'bg-white'
@@ -113,8 +125,8 @@ const Navbar = () => {
             </li>
           ))}
           
-          {/* Dashboard Link for Admin/Doctor */}
-          {isAuthenticated && (user?.role === "Admin" || user?.role === "Doctor") && (
+          {/* ✅ Dashboard Link - ALL ROLES */}
+          {isAuthenticated && (
             <li 
               className="relative"
               onMouseEnter={() => setHoveredItem("Dashboard")}
@@ -124,14 +136,7 @@ const Navbar = () => {
                 className={`transition-colors duration-300 focus:outline-none px-2 py-1 ${
                   scrolled ? 'text-gray-900 hover:text-blue-600' : 'text-white hover:text-gray-100'
                 }`}
-                onClick={() => {
-                  setActiveItem("Dashboard");
-                  if (user?.role === "Doctor") {
-                    navigate("/doctor/dashboard");
-                  } else {
-                    navigate("/dashboard");
-                  }
-                }}
+                onClick={handleDashboardClick}
               >
                 Dashboard
               </button>
@@ -203,13 +208,13 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Close Button - RESPONSIVE PADDING */}
+      {/* Mobile Close Button */}
       {isOpen && (
         <button
           onClick={() => setIsOpen(false)}
-          className="lg:hidden fixed top-4 right-6 sm:right-10 z-[60] focus:outline-none hover:opacity-70 transition-opacity"
+          className="lg:hidden fixed top-3 right-4 sm:right-8 z-[60] focus:outline-none hover:opacity-70 transition-opacity"
         >
-          <FaTimes className="text-2xl sm:text-3xl text-gray-900" />
+          <FaTimes className="text-2xl text-gray-900" />
         </button>
       )}
 
@@ -220,7 +225,6 @@ const Navbar = () => {
         }`}
         style={{ width: "250px" }}
       >
-        {/* Spacing for close button */}
         <div className="h-16"></div>
 
         {/* User Info in Mobile */}
@@ -248,7 +252,6 @@ const Navbar = () => {
               >
                 {item}
               </button>
-              {/* Underline for active item in mobile */}
               <div 
                 className={`absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600 transition-all duration-300 ease-in-out transform origin-left ${
                   activeItem === item
@@ -259,22 +262,14 @@ const Navbar = () => {
             </li>
           ))}
           
-          {/* Dashboard Link for Admin/Doctor in Mobile */}
-          {isAuthenticated && (user?.role === "Admin" || user?.role === "Doctor") && (
+          {/* ✅ Dashboard Link in Mobile - ALL ROLES */}
+          {isAuthenticated && (
             <li className="relative">
               <button
                 className={`w-full text-left transition-colors duration-300 focus:outline-none rounded px-2 py-1 ${
                   activeItem === "Dashboard" ? "text-blue-600" : "text-blue-900 hover:text-blue-600"
                 }`}
-                onClick={() => {
-                  setActiveItem("Dashboard");
-                  setIsOpen(false);
-                  if (user?.role === "Doctor") {
-                    navigate("/doctor/dashboard");
-                  } else {
-                    navigate("/dashboard");
-                  }
-                }}
+                onClick={handleDashboardClick}
               >
                 Dashboard
               </button>

@@ -10,6 +10,7 @@ import RegisterForm from './pages/RegisterForm';
 import Appoinment from './pages/Appoinment';
 import Dashboard from './pages/Dashboard';
 import DoctorDashboard from './pages/DoctorsDashboard';
+import PatientDashboard from './pages/PatientDashboard';  // ✅ Import
 import ContactUs from './pages/ContactUs';
 
 function App() {
@@ -17,7 +18,6 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="overflow-x-hidden">
-          
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -47,6 +47,15 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['Patient']}>
                   <Appoinment />
+                </ProtectedRoute>
+              }
+            />
+            {/* ✅ NEW: Patient Dashboard */}
+            <Route
+              path="/patient/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['Patient']}>
+                  <PatientDashboard />
                 </ProtectedRoute>
               }
             />
