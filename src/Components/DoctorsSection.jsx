@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Slider from "react-slick";
 import axios from "../utils/axios";
@@ -17,15 +16,15 @@ const DoctorsSection = () => {
     const fetchDoctors = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/user/doctors');
-        
+        const response = await axios.get("/user/doctors");
+
         if (response.data.success) {
-          const doctorsData = response.data.doctors.map(doc => ({
+          const doctorsData = response.data.doctors.map((doc) => ({
             id: doc._id,
             name: `${doc.firstName} ${doc.lastName}`,
             specialization: doc.doctorDepartment || "General Medicine",
-            pic: doc.docAvatar?.url || null,  
-            email: doc.email
+            pic: doc.docAvatar?.url || null,
+            email: doc.email,
           }));
           setDoctors(doctorsData);
         }
@@ -84,7 +83,7 @@ const DoctorsSection = () => {
         />
       );
     }
-    
+
     return null;
   };
 
@@ -124,7 +123,8 @@ const DoctorsSection = () => {
           Meet Our Expert Doctors
         </h2>
         <p className="text-sm sm:text-base md:text-lg text-gray-600">
-          {doctors.length} highly qualified medical professionals dedicated to your health and well-being
+          {doctors.length} highly qualified medical professionals dedicated to
+          your health and well-being
         </p>
       </div>
 
@@ -147,13 +147,19 @@ const DoctorsSection = () => {
                   </div>
                   <div className="absolute bottom-0 right-0 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-green-500 rounded-full border-2 sm:border-4 border-white"></div>
                 </div>
-                
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">{doctor.name}</h3>
-                <p className="text-sm sm:text-base text-blue-600 font-semibold mb-1">{doctor.specialization}</p>
-                <p className="text-xs sm:text-sm text-gray-500 mb-4">{doctor.email}</p>
-                
-                <button 
-                  onClick={() => window.location.href = '/appointment'}
+
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+                  {doctor.name}
+                </h3>
+                <p className="text-sm sm:text-base text-blue-600 font-semibold mb-1">
+                  {doctor.specialization}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-500 mb-4">
+                  {doctor.email}
+                </p>
+
+                <button
+                  onClick={() => (window.location.href = "/appointment")}
                   className="mt-2 md:mt-4 bg-blue-600 hover:bg-blue-700 text-white px-5 md:px-6 py-2 rounded-lg transition-all duration-300 text-xs sm:text-sm font-semibold"
                 >
                   Book Appointment
