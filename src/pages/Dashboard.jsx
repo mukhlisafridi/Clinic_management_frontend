@@ -112,7 +112,7 @@ export default function Dashboard() {
     }
   };
 
-  // ✅ Delete message
+  // Delete message
   const deleteMessage = async (messageId) => {
     if (window.confirm("Are you sure you want to delete this message?")) {
       try {
@@ -129,7 +129,7 @@ export default function Dashboard() {
     }
   };
 
-  // ✅ Delete doctor
+  //  Delete doctor
   const deleteDoctor = async (doctorId) => {
     if (
       window.confirm(
@@ -150,7 +150,7 @@ export default function Dashboard() {
     }
   };
 
-  // ✅ Update appointment - auto-delete if rejected
+  // Update appointment - auto-delete if rejected
   const updateAppointmentStatus = async (id, status) => {
     if (status === "Rejected") {
       if (
@@ -714,14 +714,12 @@ export default function Dashboard() {
                 </div>
               )}
 
-              {/* ✅ DOCTORS GRID WITH DELETE BUTTON */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {doctors.map((doctor) => (
                   <div
                     key={doctor.id}
                     className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition relative"
                   >
-                    {/* ✅ DELETE BUTTON - Top Right */}
                     <button
                       onClick={() => deleteDoctor(doctor.id)}
                       className="absolute top-4 right-4 text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-full transition"
@@ -814,7 +812,7 @@ export default function Dashboard() {
                                   msg.createdAt || Date.now()
                                 ).toLocaleDateString()}
                               </span>
-                              {/* ✅ DELETE MESSAGE BUTTON */}
+                              
                               <button
                                 onClick={() => deleteMessage(msg._id)}
                                 className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 rounded-full transition"
