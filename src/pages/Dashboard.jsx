@@ -1,15 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Check, X, Clock, User, Calendar, Mail, Lock, Stethoscope, MessageSquare, Users, Phone } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import axios from '../utils/axios';
+import React, { useState, useEffect } from "react";
+import {
+  Plus,
+  Check,
+  X,
+  Clock,
+  User,
+  Calendar,
+  Mail,
+  Lock,
+  Stethoscope,
+  MessageSquare,
+  Users,
+  Phone,
+  Trash2,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import axios from "../utils/axios";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
-  const [activeTab, setActiveTab] = useState('appointments');
+
+  const [activeTab, setActiveTab] = useState("appointments");
   const [showAddDoctor, setShowAddDoctor] = useState(false);
   const [showAddAdmin, setShowAddAdmin] = useState(false);
   const [doctors, setDoctors] = useState([]);
@@ -18,53 +32,49 @@ export default function Dashboard() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [loadingAppointments, setLoadingAppointments] = useState(false);
   const [newDoctor, setNewDoctor] = useState({
-    name: '',
-    email: '',
-    password: '',
-    department: ''
+    name: "",
+    email: "",
+    password: "",
+    department: "",
   });
   const [newAdmin, setNewAdmin] = useState({
-    name: '',
-    email: '',
-    password: ''
+    name: "",
+    email: "",
+    password: "",
   });
 
   useEffect(() => {
     loadData();
   }, []);
 
- 
   const loadData = async () => {
     try {
-      // Load doctors
-      const doctorsResponse = await axios.get('/user/doctors');
+      const doctorsResponse = await axios.get("/user/doctors");
       if (doctorsResponse.data.success) {
-        const doctorsData = doctorsResponse.data.doctors.map(doc => ({
+        const doctorsData = doctorsResponse.data.doctors.map((doc) => ({
           id: doc._id,
           name: `${doc.firstName} ${doc.lastName}`,
           email: doc.email,
-          department: doc.doctorDepartment
+          department: doc.doctorDepartment,
         }));
         setDoctors(doctorsData);
       }
 
       await fetchAppointments();
-
-      
       await fetchMessages();
     } catch (error) {
-      console.error('Error loading data:', error);
-      toast.error('Failed to load data');
+      console.error("Error loading data:", error);
+      toast.error("Failed to load data");
     }
   };
 
   const fetchAppointments = async () => {
     try {
       setLoadingAppointments(true);
-      const response = await axios.get('/appointment/getall');
-      
+      const response = await axios.get("/appointment/getall");
+
       if (response.data.success) {
-        const appointmentsData = response.data.appointments.map(apt => ({
+        const appointmentsData = response.data.appointments.map((apt) => ({
           id: apt._id,
           patientName: `${apt.firstName} ${apt.lastName}`,
           patientEmail: apt.email,
@@ -73,14 +83,14 @@ export default function Dashboard() {
           doctorId: apt.doctorId,
           date: new Date(apt.appointment_date).toLocaleDateString(),
           department: apt.department,
-          status: apt.status || 'Pending',
+          status: apt.status || "Pending",
           visited: apt.hasVisited || false,
         }));
         setAppointments(appointmentsData);
       }
     } catch (error) {
-      console.error('Error fetching appointments:', error);
-      toast.error('Failed to load appointments');
+      console.error("Error fetching appointments:", error);
+      toast.error("Failed to load appointments");
     } finally {
       setLoadingAppointments(false);
     }
@@ -89,48 +99,83 @@ export default function Dashboard() {
   const fetchMessages = async () => {
     try {
       setLoadingMessages(true);
-      const response = await axios.get('/message/getall');
-      
+      const response = await axios.get("/message/getall");
+
       if (response.data.success) {
         setMessages(response.data.messages || []);
       }
     } catch (error) {
-      console.error('Error fetching messages:', error);
-      toast.error('Failed to load messages');
+      console.error("Error fetching messages:", error);
+      toast.error("Failed to load messages");
     } finally {
       setLoadingMessages(false);
     }
   };
 
-  const updateAppointmentStatus = async (id, status) => {
-    try {
-      const response = await axios.put(`/appointment/update/${id}`, { status });
-      
-      if (response.data.success) {
-        // Update local state
-        const updated = appointments.map(apt => 
-          apt.id === id ? { ...apt, status } : apt
-        );
-        setAppointments(updated);
-        toast.success(`Appointment ${status}!`);
+  const deleteMessage = async (messageId) => {
+    if (window.confirm("Are you sure you want to delete this message?")) {
+      try {
+        const response = await axios.delete(`/message/delete/${messageId}`);
+
+        if (response.data.success) {
+          setMessages(messages.filter((m) => m._id !== messageId));
+          toast.success("Message deleted successfully!");
+        }
+      } catch (error) {
+        console.error("Error deleting message:", error);
+        toast.error("Failed to delete message");
       }
-    } catch (error) {
-      console.error('Error updating appointment:', error);
-      toast.error('Failed to update appointment status');
     }
   };
 
-  // Add doctor to database
+  const updateAppointmentStatus = async (id, status) => {
+    if (status === "Rejected") {
+      if (
+        !window.confirm(
+          "Rejecting will permanently delete this appointment. Continue?"
+        )
+      ) {
+        return;
+      }
+    }
+
+    try {
+      const response = await axios.put(`/appointment/update/${id}`, { status });
+
+      if (response.data.success) {
+        if (response.data.deleted) {
+          const updated = appointments.filter((apt) => apt.id !== id);
+          setAppointments(updated);
+          toast.success("Appointment rejected and deleted!");
+        } else {
+          const updated = appointments.map((apt) =>
+            apt.id === id ? { ...apt, status } : apt
+          );
+          setAppointments(updated);
+          toast.success(`Appointment ${status}!`);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating appointment:", error);
+      toast.error("Failed to update appointment status");
+    }
+  };
+
   const addDoctor = async (e) => {
     e.preventDefault();
-    
-    if (newDoctor.name && newDoctor.email && newDoctor.password && newDoctor.department) {
+
+    if (
+      newDoctor.name &&
+      newDoctor.email &&
+      newDoctor.password &&
+      newDoctor.department
+    ) {
       try {
-        const response = await axios.post('/user/doctor/addnew/simple', {
+        const response = await axios.post("/user/doctor/addnew/simple", {
           name: newDoctor.name,
           email: newDoctor.email,
           password: newDoctor.password,
-          department: newDoctor.department
+          department: newDoctor.department,
         });
 
         if (response.data.success) {
@@ -138,23 +183,23 @@ export default function Dashboard() {
             id: response.data.doctor.id,
             name: response.data.doctor.name,
             email: response.data.doctor.email,
-            department: response.data.doctor.department
+            department: response.data.doctor.department,
           };
-          
+
           const updated = [...doctors, newDoctorData];
           setDoctors(updated);
-          
-          setNewDoctor({ name: '', email: '', password: '', department: '' });
+
+          setNewDoctor({ name: "", email: "", password: "", department: "" });
           setShowAddDoctor(false);
-          
-          toast.success(response.data.message || 'Doctor added successfully!');
+
+          toast.success(response.data.message || "Doctor added successfully!");
         }
       } catch (error) {
         console.error("Error adding doctor:", error);
-        toast.error(error.response?.data?.message || 'Failed to add doctor!');
+        toast.error(error.response?.data?.message || "Failed to add doctor!");
       }
     } else {
-      toast.error('Please fill all fields');
+      toast.error("Please fill all fields");
     }
   };
 
@@ -162,25 +207,27 @@ export default function Dashboard() {
     e.preventDefault();
     if (newAdmin.name && newAdmin.email && newAdmin.password) {
       toast.success(`Admin Created Successfully! Name: ${newAdmin.name}`);
-      setNewAdmin({ name: '', email: '', password: '' });
+      setNewAdmin({ name: "", email: "", password: "" });
       setShowAddAdmin(false);
     } else {
-      toast.error('Please fill all fields');
+      toast.error("Please fill all fields");
     }
   };
 
   const getTotalAppointments = () => appointments.length;
-  const getPendingCount = () => appointments.filter(a => a.status === 'Pending').length;
-  const getAcceptedCount = () => appointments.filter(a => a.status === 'Accepted').length;
+  const getPendingCount = () =>
+    appointments.filter((a) => a.status === "Pending").length;
+  const getAcceptedCount = () =>
+    appointments.filter((a) => a.status === "Accepted").length;
 
   const handleLogout = async () => {
     try {
-      await axios.get('/user/admin/logout');
+      await axios.get("/user/admin/logout");
       logout();
-      toast.success('Logged out successfully!');
-      navigate('/login');
+      toast.success("Logged out successfully!");
+      navigate("/login");
     } catch (error) {
-      toast.error('Logout failed!');
+      toast.error("Logout failed!");
     }
   };
 
@@ -195,7 +242,9 @@ export default function Dashboard() {
                 <Stethoscope className="w-7 h-7 md:w-8 md:h-8" />
                 Admin Dashboard
               </h1>
-              <p className="text-blue-100 text-sm mt-1">Welcome, {user?.firstName}!</p>
+              <p className="text-blue-100 text-sm mt-1">
+                Welcome, {user?.firstName}!
+              </p>
             </div>
             <button
               onClick={handleLogout}
@@ -206,8 +255,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      
-      {/* Create Admin Button */}
+
       <div className="max-w-7xl mx-auto px-4 pt-3 pb-2">
         <button
           onClick={() => setShowAddAdmin(true)}
@@ -217,13 +265,13 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Stats & Content */}
       <div className="max-w-7xl mx-auto px-4 pb-4">
-        {/* Create Admin Modal */}
         {showAddAdmin && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-              <h3 className="text-2xl font-bold text-gray-800 mb-6">Create New Admin</h3>
+              <h3 className="text-2xl font-bold text-gray-800 mb-6">
+                Create New Admin
+              </h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -232,7 +280,9 @@ export default function Dashboard() {
                   <input
                     type="text"
                     value={newAdmin.name}
-                    onChange={(e) => setNewAdmin({...newAdmin, name: e.target.value})}
+                    onChange={(e) =>
+                      setNewAdmin({ ...newAdmin, name: e.target.value })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                     placeholder="Admin Name"
                   />
@@ -244,7 +294,9 @@ export default function Dashboard() {
                   <input
                     type="email"
                     value={newAdmin.email}
-                    onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})}
+                    onChange={(e) =>
+                      setNewAdmin({ ...newAdmin, email: e.target.value })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                     placeholder="admin@hospital.com"
                   />
@@ -256,7 +308,9 @@ export default function Dashboard() {
                   <input
                     type="password"
                     value={newAdmin.password}
-                    onChange={(e) => setNewAdmin({...newAdmin, password: e.target.value})}
+                    onChange={(e) =>
+                      setNewAdmin({ ...newAdmin, password: e.target.value })
+                    }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                     placeholder="Password"
                   />
@@ -280,13 +334,14 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
           <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs">Total Appointments</p>
-                <p className="text-2xl font-bold text-blue-600">{getTotalAppointments()}</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {getTotalAppointments()}
+                </p>
               </div>
               <Calendar className="w-10 h-10 text-blue-300" />
             </div>
@@ -295,7 +350,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs">Pending</p>
-                <p className="text-2xl font-bold text-yellow-600">{getPendingCount()}</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {getPendingCount()}
+                </p>
               </div>
               <Clock className="w-10 h-10 text-yellow-300" />
             </div>
@@ -304,7 +361,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs">Accepted</p>
-                <p className="text-2xl font-bold text-green-600">{getAcceptedCount()}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {getAcceptedCount()}
+                </p>
               </div>
               <Check className="w-10 h-10 text-green-300" />
             </div>
@@ -313,7 +372,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs">Total Doctors</p>
-                <p className="text-2xl font-bold text-cyan-600">{doctors.length}</p>
+                <p className="text-2xl font-bold text-cyan-600">
+                  {doctors.length}
+                </p>
               </div>
               <Users className="w-10 h-10 text-cyan-300" />
             </div>
@@ -322,42 +383,43 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs">Messages</p>
-                <p className="text-2xl font-bold text-purple-600">{messages.length}</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {messages.length}
+                </p>
               </div>
               <MessageSquare className="w-10 h-10 text-purple-300" />
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="flex border-b overflow-x-auto">
             <button
-              onClick={() => setActiveTab('appointments')}
+              onClick={() => setActiveTab("appointments")}
               className={`flex-1 px-3 sm:px-4 md:px-6 py-3 md:py-4 text-center font-medium transition text-xs sm:text-sm md:text-base whitespace-nowrap ${
-                activeTab === 'appointments'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                activeTab === "appointments"
+                  ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
               }`}
             >
               Appointments
             </button>
             <button
-              onClick={() => setActiveTab('doctors')}
+              onClick={() => setActiveTab("doctors")}
               className={`flex-1 px-3 sm:px-4 md:px-6 py-3 md:py-4 text-center font-medium transition text-xs sm:text-sm md:text-base whitespace-nowrap ${
-                activeTab === 'doctors'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                activeTab === "doctors"
+                  ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
               }`}
             >
               Doctors
             </button>
             <button
-              onClick={() => setActiveTab('messages')}
+              onClick={() => setActiveTab("messages")}
               className={`flex-1 px-3 sm:px-4 md:px-6 py-3 md:py-4 text-center font-medium transition relative text-xs sm:text-sm md:text-base whitespace-nowrap ${
-                activeTab === 'messages'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                activeTab === "messages"
+                  ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-gray-50"
               }`}
             >
               Messages
@@ -369,16 +431,28 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {activeTab === 'appointments' && (
+          {activeTab === "appointments" && (
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-800">All Appointments</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                  All Appointments
+                </h2>
                 <button
                   onClick={fetchAppointments}
                   className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-xs sm:text-sm flex items-center gap-2"
                 >
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  <svg
+                    className="w-3 h-3 sm:w-4 sm:h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
                   </svg>
                   Refresh
                 </button>
@@ -396,13 +470,18 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {appointments.map(apt => (
-                    <div key={apt.id} className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-5 hover:shadow-md transition bg-white">
+                  {appointments.map((apt) => (
+                    <div
+                      key={apt.id}
+                      className="border border-gray-200 rounded-lg p-3 sm:p-4 md:p-5 hover:shadow-md transition bg-white"
+                    >
                       <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                         <div className="flex items-start gap-3 sm:gap-4 flex-1 w-full">
-                          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            apt.visited ? 'bg-green-100' : 'bg-yellow-100'
-                          }`}>
+                          <div
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                              apt.visited ? "bg-green-100" : "bg-yellow-100"
+                            }`}
+                          >
                             {apt.visited ? (
                               <Check className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                             ) : (
@@ -410,61 +489,81 @@ export default function Dashboard() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-gray-900 mb-1 text-sm sm:text-base">{apt.patientName}</h3>
+                            <h3 className="font-bold text-gray-900 mb-1 text-sm sm:text-base">
+                              {apt.patientName}
+                            </h3>
                             <div className="space-y-1 text-xs sm:text-sm text-gray-600">
                               <p className="flex items-center gap-1 sm:gap-2">
-                                <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" /> 
-                                <span className="truncate">Doctor: {apt.doctorName}</span>
+                                <User className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                <span className="truncate">
+                                  Doctor: {apt.doctorName}
+                                </span>
                               </p>
                               <p className="flex items-center gap-1 sm:gap-2">
-                                <Stethoscope className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" /> {apt.department}
+                                <Stethoscope className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />{" "}
+                                {apt.department}
                               </p>
                               <p className="flex items-center gap-1 sm:gap-2">
-                                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" /> {apt.date}
+                                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />{" "}
+                                {apt.date}
                               </p>
                               <p className="flex items-center gap-1 sm:gap-2">
-                                <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" /> 
-                                <span className="truncate">{apt.patientEmail}</span>
+                                <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                                <span className="truncate">
+                                  {apt.patientEmail}
+                                </span>
                               </p>
                               <p className="flex items-center gap-1 sm:gap-2">
-                                <Phone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" /> {apt.patientPhone}
+                                <Phone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />{" "}
+                                {apt.patientPhone}
                               </p>
                             </div>
                             <p className="text-xs sm:text-sm mt-2">
-                              <span className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${
-                                apt.status === 'Accepted' ? 'bg-green-100 text-green-800' :
-                                apt.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
+                              <span
+                                className={`inline-block px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${
+                                  apt.status === "Accepted"
+                                    ? "bg-green-100 text-green-800"
+                                    : apt.status === "Pending"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
                                 {apt.status}
                               </span>
                             </p>
                           </div>
                         </div>
-                      
+
                         <div className="flex sm:flex-col gap-2 w-full sm:w-auto">
-                          {apt.status !== 'Accepted' && (
+                          {apt.status !== "Accepted" && (
                             <button
-                              onClick={() => updateAppointmentStatus(apt.id, 'Accepted')}
+                              onClick={() =>
+                                updateAppointmentStatus(apt.id, "Accepted")
+                              }
                               className="flex-1 sm:flex-none bg-green-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded hover:bg-green-600 transition flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
                             >
                               <Check className="w-3 h-3 sm:w-4 sm:h-4" /> Accept
                             </button>
                           )}
-                          {apt.status !== 'Rejected' && (
+                          {apt.status !== "Rejected" && (
                             <button
-                              onClick={() => updateAppointmentStatus(apt.id, 'Rejected')}
+                              onClick={() =>
+                                updateAppointmentStatus(apt.id, "Rejected")
+                              }
                               className="flex-1 sm:flex-none bg-red-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded hover:bg-red-600 transition flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
                             >
                               <X className="w-3 h-3 sm:w-4 sm:h-4" /> Reject
                             </button>
                           )}
-                          {apt.status !== 'Pending' && (
+                          {apt.status !== "Pending" && (
                             <button
-                              onClick={() => updateAppointmentStatus(apt.id, 'Pending')}
+                              onClick={() =>
+                                updateAppointmentStatus(apt.id, "Pending")
+                              }
                               className="flex-1 sm:flex-none bg-yellow-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded hover:bg-yellow-600 transition flex items-center justify-center gap-1 text-xs sm:text-sm whitespace-nowrap"
                             >
-                              <Clock className="w-3 h-3 sm:w-4 sm:h-4" /> Pending
+                              <Clock className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
+                              Pending
                             </button>
                           )}
                         </div>
@@ -476,11 +575,12 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Doctors Tab */}
-          {activeTab === 'doctors' && (
+          {activeTab === "doctors" && (
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-800">Doctors Gallery</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                  Doctors Gallery
+                </h2>
                 <button
                   onClick={() => setShowAddDoctor(true)}
                   className="bg-blue-600 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-xs sm:text-sm md:text-base"
@@ -491,7 +591,9 @@ export default function Dashboard() {
 
               {showAddDoctor && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">Register New Doctor</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">
+                    Register New Doctor
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -500,7 +602,9 @@ export default function Dashboard() {
                       <input
                         type="text"
                         value={newDoctor.name}
-                        onChange={(e) => setNewDoctor({...newDoctor, name: e.target.value})}
+                        onChange={(e) =>
+                          setNewDoctor({ ...newDoctor, name: e.target.value })
+                        }
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                         placeholder="Dr. Ahmed Khan"
                       />
@@ -512,7 +616,9 @@ export default function Dashboard() {
                       <input
                         type="email"
                         value={newDoctor.email}
-                        onChange={(e) => setNewDoctor({...newDoctor, email: e.target.value})}
+                        onChange={(e) =>
+                          setNewDoctor({ ...newDoctor, email: e.target.value })
+                        }
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                         placeholder="doctor@hospital.com"
                       />
@@ -524,24 +630,36 @@ export default function Dashboard() {
                       <input
                         type="password"
                         value={newDoctor.password}
-                        onChange={(e) => setNewDoctor({...newDoctor, password: e.target.value})}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            password: e.target.value,
+                          })
+                        }
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black"
                         placeholder="Password"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <Stethoscope className="w-4 h-4 inline mr-1" /> Department
+                        <Stethoscope className="w-4 h-4 inline mr-1" />{" "}
+                        Department
                       </label>
                       <select
                         value={newDoctor.department}
-                        onChange={(e) => setNewDoctor({...newDoctor, department: e.target.value})}
+                        onChange={(e) =>
+                          setNewDoctor({
+                            ...newDoctor,
+                            department: e.target.value,
+                          })
+                        }
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-black appearance-none cursor-pointer"
-                        style={{ 
-                          backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234B5563'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E\")", 
-                          backgroundRepeat: "no-repeat", 
-                          backgroundPosition: "right 0.75rem center", 
-                          backgroundSize: "1.25em 1.25em" 
+                        style={{
+                          backgroundImage:
+                            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234B5563'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E\")",
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: "right 0.75rem center",
+                          backgroundSize: "1.25em 1.25em",
                         }}
                       >
                         <option value="">Select Department</option>
@@ -569,15 +687,22 @@ export default function Dashboard() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {doctors.map(doctor => (
-                  <div key={doctor.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                {doctors.map((doctor) => (
+                  <div
+                    key={doctor.id}
+                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition"
+                  >
                     <div className="flex items-center gap-4 mb-4">
                       <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                         <User className="w-8 h-8 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-lg text-gray-800">{doctor.name}</h3>
-                        <p className="text-sm text-blue-600">{doctor.department}</p>
+                        <h3 className="font-bold text-lg text-gray-800">
+                          {doctor.name}
+                        </h3>
+                        <p className="text-sm text-blue-600">
+                          {doctor.department}
+                        </p>
                       </div>
                     </div>
                     <div className="space-y-2 text-sm text-gray-600">
@@ -590,18 +715,28 @@ export default function Dashboard() {
               </div>
             </div>
           )}
-
-          {/* Messages Tab */}
-          {activeTab === 'messages' && (
+          {activeTab === "messages" && (
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-800">Contact Messages</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+                  Contact Messages
+                </h2>
                 <button
                   onClick={fetchMessages}
                   className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-xs sm:text-sm flex items-center gap-2"
                 >
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  <svg
+                    className="w-3 h-3 sm:w-4 sm:h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
                   </svg>
                   Refresh
                 </button>
@@ -619,7 +754,7 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {messages.map(msg => (
+                  {messages.map((msg) => (
                     <div
                       key={msg._id}
                       className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition bg-white"
@@ -633,13 +768,26 @@ export default function Dashboard() {
                             <h3 className="font-bold text-gray-800">
                               {msg.firstName} {msg.lastName}
                             </h3>
-                            <span className="text-xs text-gray-500">
-                              {new Date(msg.createdAt || Date.now()).toLocaleDateString()}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500">
+                                {new Date(
+                                  msg.createdAt || Date.now()
+                                ).toLocaleDateString()}
+                              </span>
+
+                              <button
+                                onClick={() => deleteMessage(msg._id)}
+                                className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 rounded-full transition"
+                                title="Delete Message"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
                           <div className="space-y-1 text-sm">
                             <p className="flex items-center gap-2 text-gray-600">
-                              <Mail className="w-4 h-4" /> <span className="truncate">{msg.email}</span>
+                              <Mail className="w-4 h-4" />{" "}
+                              <span className="truncate">{msg.email}</span>
                             </p>
                             <p className="flex items-center gap-2 text-gray-600">
                               <Phone className="w-4 h-4" /> {msg.phone}

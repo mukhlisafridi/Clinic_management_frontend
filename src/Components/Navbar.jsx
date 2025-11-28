@@ -7,12 +7,12 @@ import toast from "react-hot-toast";
 const Navbar = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("Home");
   const [scrolled, setScrolled] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
-  
+
   const navItems = ["Home", "Contact Us", "Appointment"];
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const Navbar = () => {
   const handleNavClick = (item) => {
     setActiveItem(item);
     setIsOpen(false);
-    
+
     if (item === "Home") {
       navigate("/");
     } else if (item === "Contact Us") {
@@ -59,11 +59,10 @@ const Navbar = () => {
     navigate("/register");
   };
 
-  
   const handleDashboardClick = () => {
     setActiveItem("Dashboard");
     setIsOpen(false);
-    
+
     if (user?.role === "Admin") {
       navigate("/dashboard");
     } else if (user?.role === "Doctor") {
@@ -75,42 +74,47 @@ const Navbar = () => {
 
   return (
     <>
-      
-      <div 
+      <div
         className={`shadow-md flex items-center justify-between px-6 md:px-10 py-3 sticky top-0 w-full z-20 transition-all duration-300 ${
-          scrolled 
-            ? "bg-white border-b border-gray-200" 
-            : "bg-blue-600"
+          scrolled ? "bg-white border-b border-gray-200" : "bg-blue-600"
         }`}
       >
-      
         <Link to="/" className="flex items-center gap-2 cursor-pointer">
-          <FaHospital className={`text-3xl transition-colors duration-300 ${scrolled ? 'text-blue-600' : 'text-white'}`} />
-          <span className={`text-xl font-bold transition-colors duration-300 ${scrolled ? 'text-gray-900' : 'text-white'}`}>
+          <FaHospital
+            className={`text-3xl transition-colors duration-300 ${
+              scrolled ? "text-blue-600" : "text-white"
+            }`}
+          />
+          <span
+            className={`text-xl font-bold transition-colors duration-300 ${
+              scrolled ? "text-gray-900" : "text-white"
+            }`}
+          >
             Hospital
           </span>
         </Link>
 
-        
         <ul className="hidden lg:flex space-x-8 font-semibold text-lg">
           {navItems.map((item) => (
-            <li 
-              key={item} 
+            <li
+              key={item}
               className="relative"
               onMouseEnter={() => setHoveredItem(item)}
               onMouseLeave={() => setHoveredItem(null)}
             >
-              <button 
+              <button
                 className={`transition-colors duration-300 focus:outline-none px-2 py-1 ${
-                  scrolled ? 'text-gray-900 hover:text-blue-600' : 'text-white hover:text-gray-100'
+                  scrolled
+                    ? "text-gray-900 hover:text-blue-600"
+                    : "text-white hover:text-gray-100"
                 }`}
                 onClick={() => handleNavClick(item)}
               >
                 {item}
               </button>
-              <div 
+              <div
                 className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300 ease-in-out transform origin-center ${
-                  scrolled ? 'bg-blue-600' : 'bg-white'
+                  scrolled ? "bg-blue-600" : "bg-white"
                 } ${
                   activeItem === item || hoveredItem === item
                     ? "scale-x-100 opacity-100"
@@ -119,25 +123,26 @@ const Navbar = () => {
               ></div>
             </li>
           ))}
-          
-          
+
           {isAuthenticated && (
-            <li 
+            <li
               className="relative"
               onMouseEnter={() => setHoveredItem("Dashboard")}
               onMouseLeave={() => setHoveredItem(null)}
             >
-              <button 
+              <button
                 className={`transition-colors duration-300 focus:outline-none px-2 py-1 ${
-                  scrolled ? 'text-gray-900 hover:text-blue-600' : 'text-white hover:text-gray-100'
+                  scrolled
+                    ? "text-gray-900 hover:text-blue-600"
+                    : "text-white hover:text-gray-100"
                 }`}
                 onClick={handleDashboardClick}
               >
                 Dashboard
               </button>
-              <div 
+              <div
                 className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300 ease-in-out transform origin-center ${
-                  scrolled ? 'bg-blue-600' : 'bg-white'
+                  scrolled ? "bg-blue-600" : "bg-white"
                 } ${
                   activeItem === "Dashboard" || hoveredItem === "Dashboard"
                     ? "scale-x-100 opacity-100"
@@ -148,16 +153,17 @@ const Navbar = () => {
           )}
         </ul>
 
-      
         <div className="hidden lg:flex items-center gap-4">
           {isAuthenticated ? (
             <>
-              <span className={`text-sm font-medium transition-colors duration-300 ${
-                scrolled ? 'text-gray-900' : 'text-white'
-              }`}>
+              <span
+                className={`text-sm font-medium transition-colors duration-300 ${
+                  scrolled ? "text-gray-900" : "text-white"
+                }`}
+              >
                 Welcome, {user?.firstName}!
               </span>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white font-semibold px-4 py-2 rounded hover:bg-red-700 transition-colors focus:outline-none"
               >
@@ -166,22 +172,22 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <button 
+              <button
                 onClick={handleLoginClick}
                 className={`font-semibold px-4 py-2 rounded transition-colors focus:outline-none ${
-                  scrolled 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'bg-white text-blue-600 hover:bg-blue-50'
+                  scrolled
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-white text-blue-600 hover:bg-blue-50"
                 }`}
               >
                 Login
               </button>
-              <button 
+              <button
                 onClick={handleRegisterClick}
                 className={`font-semibold px-4 py-2 rounded transition-colors focus:outline-none ${
-                  scrolled 
-                    ? 'bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50' 
-                    : 'bg-blue-800 text-white border border-white/30 hover:bg-blue-900'
+                  scrolled
+                    ? "bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50"
+                    : "bg-blue-800 text-white border border-white/30 hover:bg-blue-900"
                 }`}
               >
                 Register
@@ -190,15 +196,16 @@ const Navbar = () => {
           )}
         </div>
 
-        
         <div className="lg:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="focus:outline-none rounded p-1"
           >
-            <FaBars className={`text-2xl transition-colors duration-300 ${
-              scrolled ? 'text-gray-900' : 'text-white'
-            }`} />
+            <FaBars
+              className={`text-2xl transition-colors duration-300 ${
+                scrolled ? "text-gray-900" : "text-white"
+              }`}
+            />
           </button>
         </div>
       </div>
@@ -225,9 +232,7 @@ const Navbar = () => {
             <p className="text-sm font-bold text-blue-900">
               {user?.firstName} {user?.lastName}
             </p>
-            <p className="text-xs text-gray-600 mt-0.5">
-              Role: {user?.role}
-            </p>
+            <p className="text-xs text-gray-600 mt-0.5">Role: {user?.role}</p>
           </div>
         )}
 
@@ -236,13 +241,15 @@ const Navbar = () => {
             <li key={item} className="relative">
               <button
                 className={`w-full text-left transition-colors duration-300 focus:outline-none rounded px-2 py-1 ${
-                  activeItem === item ? "text-blue-600" : "text-blue-900 hover:text-blue-600"
+                  activeItem === item
+                    ? "text-blue-600"
+                    : "text-blue-900 hover:text-blue-600"
                 }`}
                 onClick={() => handleNavClick(item)}
               >
                 {item}
               </button>
-              <div 
+              <div
                 className={`absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600 transition-all duration-300 ease-in-out transform origin-left ${
                   activeItem === item
                     ? "scale-x-100 opacity-100"
@@ -251,19 +258,20 @@ const Navbar = () => {
               ></div>
             </li>
           ))}
-          
-         
+
           {isAuthenticated && (
             <li className="relative">
               <button
                 className={`w-full text-left transition-colors duration-300 focus:outline-none rounded px-2 py-1 ${
-                  activeItem === "Dashboard" ? "text-blue-600" : "text-blue-900 hover:text-blue-600"
+                  activeItem === "Dashboard"
+                    ? "text-blue-600"
+                    : "text-blue-900 hover:text-blue-600"
                 }`}
                 onClick={handleDashboardClick}
               >
                 Dashboard
               </button>
-              <div 
+              <div
                 className={`absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600 transition-all duration-300 ease-in-out transform origin-left ${
                   activeItem === "Dashboard"
                     ? "scale-x-100 opacity-100"
@@ -273,10 +281,9 @@ const Navbar = () => {
             </li>
           )}
 
-          {/* Login/Logout */}
           <li className="pt-4 border-t border-gray-200">
             {isAuthenticated ? (
-              <button 
+              <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white w-full py-2 rounded hover:bg-red-700 transition-colors focus:outline-none"
               >
@@ -284,13 +291,13 @@ const Navbar = () => {
               </button>
             ) : (
               <>
-                <button 
+                <button
                   onClick={handleLoginClick}
                   className="bg-blue-600 text-white w-full py-2 rounded mb-3 hover:bg-blue-700 transition-colors focus:outline-none"
                 >
                   Login
                 </button>
-                <button 
+                <button
                   onClick={handleRegisterClick}
                   className="bg-white text-blue-600 w-full py-2 rounded border-2 border-blue-600 hover:bg-blue-50 transition-colors focus:outline-none"
                 >
@@ -301,8 +308,6 @@ const Navbar = () => {
           </li>
         </ul>
       </div>
-
-      {/* Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
