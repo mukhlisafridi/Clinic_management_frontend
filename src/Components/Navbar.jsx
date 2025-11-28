@@ -15,14 +15,9 @@ const Navbar = () => {
   
   const navItems = ["Home", "Contact Us", "Appointment"];
 
-  // Scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 50);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -64,7 +59,7 @@ const Navbar = () => {
     navigate("/register");
   };
 
-  // ✅ Dashboard navigation based on role
+  
   const handleDashboardClick = () => {
     setActiveItem("Dashboard");
     setIsOpen(false);
@@ -74,13 +69,13 @@ const Navbar = () => {
     } else if (user?.role === "Doctor") {
       navigate("/doctor/dashboard");
     } else if (user?.role === "Patient") {
-      navigate("/patient/dashboard");  // ✅ Patient Dashboard
+      navigate("/patient/dashboard");
     }
   };
 
   return (
     <>
-      {/* Top Navbar */}
+      
       <div 
         className={`shadow-md flex items-center justify-between px-6 md:px-10 py-3 sticky top-0 w-full z-20 transition-all duration-300 ${
           scrolled 
@@ -88,7 +83,7 @@ const Navbar = () => {
             : "bg-blue-600"
         }`}
       >
-        {/* Logo */}
+      
         <Link to="/" className="flex items-center gap-2 cursor-pointer">
           <FaHospital className={`text-3xl transition-colors duration-300 ${scrolled ? 'text-blue-600' : 'text-white'}`} />
           <span className={`text-xl font-bold transition-colors duration-300 ${scrolled ? 'text-gray-900' : 'text-white'}`}>
@@ -96,7 +91,7 @@ const Navbar = () => {
           </span>
         </Link>
 
-        {/* Desktop Menu */}
+        
         <ul className="hidden lg:flex space-x-8 font-semibold text-lg">
           {navItems.map((item) => (
             <li 
@@ -125,7 +120,7 @@ const Navbar = () => {
             </li>
           ))}
           
-          {/* ✅ Dashboard Link - ALL ROLES */}
+          
           {isAuthenticated && (
             <li 
               className="relative"
@@ -153,7 +148,7 @@ const Navbar = () => {
           )}
         </ul>
 
-        {/* Desktop Login/User Section */}
+      
         <div className="hidden lg:flex items-center gap-4">
           {isAuthenticated ? (
             <>
@@ -195,7 +190,7 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Hamburger */}
+        
         <div className="lg:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -207,8 +202,6 @@ const Navbar = () => {
           </button>
         </div>
       </div>
-
-      {/* Mobile Close Button */}
       {isOpen && (
         <button
           onClick={() => setIsOpen(false)}
@@ -218,7 +211,6 @@ const Navbar = () => {
         </button>
       )}
 
-      {/* Mobile Sidebar */}
       <div
         className={`fixed top-0 right-0 h-full bg-white shadow-lg transform transition-transform duration-300 z-50 ${
           isOpen ? "translate-x-0" : "translate-x-full"
@@ -227,7 +219,6 @@ const Navbar = () => {
       >
         <div className="h-16"></div>
 
-        {/* User Info in Mobile */}
         {isAuthenticated && (
           <div className="px-6 pb-4 border-b border-gray-200">
             <p className="text-xs text-gray-500 mb-1">Logged in as</p>
@@ -240,7 +231,6 @@ const Navbar = () => {
           </div>
         )}
 
-        {/* Sidebar Menu Items */}
         <ul className="flex flex-col mt-8 space-y-6 px-6 font-semibold text-blue-900">
           {navItems.map((item) => (
             <li key={item} className="relative">
@@ -262,7 +252,7 @@ const Navbar = () => {
             </li>
           ))}
           
-          {/* ✅ Dashboard Link in Mobile - ALL ROLES */}
+         
           {isAuthenticated && (
             <li className="relative">
               <button
@@ -283,7 +273,7 @@ const Navbar = () => {
             </li>
           )}
 
-          {/* Mobile Login/Logout Buttons */}
+          {/* Login/Logout */}
           <li className="pt-4 border-t border-gray-200">
             {isAuthenticated ? (
               <button 
@@ -312,7 +302,7 @@ const Navbar = () => {
         </ul>
       </div>
 
-      {/* Overlay for mobile menu */}
+      {/* Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
