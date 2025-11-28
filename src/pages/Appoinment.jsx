@@ -166,7 +166,7 @@ const AppointmentForm = () => {
           </p>
         </div>
 
-        <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden flex">
+        <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden flex pb-10">
           {/* Left Side - Image */}
           <div className="hidden lg:block lg:w-2/5 relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
             <div className="absolute inset-0 bg-black/10"></div>
@@ -189,7 +189,7 @@ const AppointmentForm = () => {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 pb-8">
+            <form onSubmit={handleSubmit} className="space-y-4 pb-32">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-1.5">
