@@ -30,9 +30,7 @@ const AppointmentForm = () => {
   });
 
   const getDisplayName = (firstName, lastName) => {
-    if (firstName === lastName) {
-      return firstName;
-    }
+    if (firstName === lastName) return firstName;
     return `${firstName} ${lastName}`;
   };
 
@@ -44,17 +42,13 @@ const AppointmentForm = () => {
 
         if (response.data.success) {
           const doctors = response.data.doctors;
-
           const uniqueDoctors = doctors.filter(
             (doctor, index, self) =>
               index === self.findIndex((d) => d.email === doctor.email)
           );
 
           setAllDoctors(uniqueDoctors);
-
-          const departments = [
-            ...new Set(uniqueDoctors.map((doc) => doc.doctorDepartment)),
-          ];
+          const departments = [...new Set(uniqueDoctors.map((doc) => doc.doctorDepartment))];
           setAvailableDepartments(departments);
         }
       } catch (error) {
@@ -70,17 +64,11 @@ const AppointmentForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [name]: value });
 
     if (name === "department") {
-      const filtered = allDoctors.filter(
-        (doc) => doc.doctorDepartment === value
-      );
+      const filtered = allDoctors.filter((doc) => doc.doctorDepartment === value);
       setFilteredDoctors(filtered);
-
       setFormData((prev) => ({
         ...prev,
         department: value,
@@ -92,9 +80,7 @@ const AppointmentForm = () => {
 
   const handleDoctorSelect = (e) => {
     const selectedDoctorId = e.target.value;
-    const selectedDoctor = allDoctors.find(
-      (doc) => doc._id === selectedDoctorId
-    );
+    const selectedDoctor = allDoctors.find((doc) => doc._id === selectedDoctorId);
 
     if (selectedDoctor) {
       setFormData({
@@ -124,9 +110,7 @@ const AppointmentForm = () => {
       const response = await api.post("/appointment/post", appointmentData);
 
       if (response.data.success) {
-        toast.success(
-          response.data.message || "Appointment booked successfully!"
-        );
+        toast.success(response.data.message || "Appointment booked successfully!");
 
         setFormData({
           firstName: "",
@@ -151,8 +135,7 @@ const AppointmentForm = () => {
       }
     } catch (error) {
       console.error("Appointment booking error:", error);
-      const errorMessage =
-        error.response?.data?.message || "Failed to book appointment";
+      const errorMessage = error.response?.data?.message || "Failed to book appointment";
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -163,10 +146,10 @@ const AppointmentForm = () => {
     <>
       <Navbar />
 
-      <div className="bg-gradient-to-br from-blue-50 via-white to-blue-50 min-h-screen flex items-center justify-center pt-20 pb-8 px-4">
-        <div className="max-w-6xl w-full bg-white rounded-xl shadow-2xl overflow-hidden flex">
+      <div className="bg-gradient-to-br from-blue-50 via-white to-blue-50 h-screen flex items-center justify-center pt-16 px-4 overflow-hidden">
+        <div className="max-w-6xl w-full bg-white rounded-xl shadow-2xl overflow-hidden flex h-[85vh]">
           
-         
+          {/* Left Side - Image */}
           <div className="hidden lg:block lg:w-2/5 relative overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
             <div className="absolute inset-0 bg-black/10"></div>
             <img
@@ -174,53 +157,24 @@ const AppointmentForm = () => {
               alt="Medical Appointment"
               className="w-full h-full object-cover opacity-80"
             />
-            <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <h3 className="text-2xl font-bold text-white mb-2">
-                  Schedule Your Visit
-                </h3>
-                <p className="text-blue-50 text-sm mb-4">
-                  Book an appointment with our expert doctors
-                </p>
-                <div className="space-y-2 text-left">
-                  <div className="flex items-center gap-2 text-white">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm">Expert Doctors</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-white">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm">Multiple Departments</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-white">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm">Quick Booking</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
-          <div className="w-full lg:w-3/5 p-6 md:p-8 overflow-y-auto max-h-[90vh]">
-            <div className="mb-5">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+          {/* Right Side - Form */}
+          <div className="w-full lg:w-3/5 p-4 md:p-6 flex flex-col">
+            <div className="mb-3">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-1">
                 Book Your <span className="text-blue-600">Appointment</span>
               </h2>
-              <p className="text-sm text-gray-600">
+              <p className="text-xs text-gray-600">
                 {loadingDoctors ? "Loading..." : `${allDoctors.length} doctors available`}
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 pb-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
+              <div className="grid grid-cols-2 gap-2.5 flex-1 overflow-y-auto pr-2">
                 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     First Name *
                   </label>
                   <input
@@ -230,13 +184,13 @@ const AppointmentForm = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
                     placeholder="First name"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     Last Name *
                   </label>
                   <input
@@ -246,13 +200,13 @@ const AppointmentForm = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
                     placeholder="Last name"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     Email *
                   </label>
                   <input
@@ -262,14 +216,14 @@ const AppointmentForm = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
                     placeholder="email@example.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Phone * (11 digits)
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
+                    Phone * (11)
                   </label>
                   <input
                     type="tel"
@@ -280,14 +234,14 @@ const AppointmentForm = () => {
                     disabled={loading}
                     maxLength="11"
                     pattern="\d{11}"
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
                     placeholder="03001234567"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    NIC * (13 digits)
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
+                    NIC * (13)
                   </label>
                   <input
                     type="text"
@@ -298,14 +252,14 @@ const AppointmentForm = () => {
                     disabled={loading}
                     maxLength="13"
                     pattern="\d{13}"
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
                     placeholder="4220112345678"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Date of Birth *
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
+                    DOB *
                   </label>
                   <input
                     type="date"
@@ -315,12 +269,12 @@ const AppointmentForm = () => {
                     required
                     disabled={loading}
                     max={new Date().toISOString().split("T")[0]}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     Gender *
                   </label>
                   <select
@@ -329,16 +283,16 @@ const AppointmentForm = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white text-gray-900 appearance-none cursor-pointer disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white text-gray-900 appearance-none cursor-pointer disabled:bg-gray-100"
                   >
-                    <option value="">Select Gender</option>
+                    <option value="">Select</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     Appointment Date *
                   </label>
                   <input
@@ -349,12 +303,12 @@ const AppointmentForm = () => {
                     required
                     disabled={loading}
                     min={new Date().toISOString().split("T")[0]}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     Department *
                   </label>
                   <select
@@ -363,21 +317,17 @@ const AppointmentForm = () => {
                     onChange={handleChange}
                     required
                     disabled={loading || loadingDoctors}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white text-gray-900 appearance-none cursor-pointer disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white text-gray-900 appearance-none cursor-pointer disabled:bg-gray-100"
                   >
-                    <option value="">
-                      {loadingDoctors ? "Loading..." : "Select Department"}
-                    </option>
+                    <option value="">{loadingDoctors ? "Loading..." : "Select"}</option>
                     {availableDepartments.map((dept) => (
-                      <option key={dept} value={dept}>
-                        {dept}
-                      </option>
+                      <option key={dept} value={dept}>{dept}</option>
                     ))}
                   </select>
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                <div className="col-span-2">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     Select Doctor *
                   </label>
                   <select
@@ -393,33 +343,26 @@ const AppointmentForm = () => {
                     }
                     required
                     disabled={loading || loadingDoctors || !formData.department}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white text-gray-900 appearance-none cursor-pointer disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white text-gray-900 appearance-none cursor-pointer disabled:bg-gray-100"
                   >
                     <option value="">
-                      {!formData.department
-                        ? "Select department first"
-                        : filteredDoctors.length === 0
-                        ? "No doctors available"
-                        : "Choose a doctor"}
+                      {!formData.department ? "Select department first" : filteredDoctors.length === 0 ? "No doctors" : "Choose"}
                     </option>
                     {filteredDoctors.map((doctor) => (
                       <option key={doctor._id} value={doctor._id}>
-                        Dr. {getDisplayName(doctor.firstName, doctor.lastName)} ({doctor.doctorDepartment})
+                        Dr. {getDisplayName(doctor.firstName, doctor.lastName)}
                       </option>
                     ))}
                   </select>
                   {formData.doctor_firstName && (
-                    <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Selected: Dr. {getDisplayName(formData.doctor_firstName, formData.doctor_lastName)}
+                    <p className="text-xs text-green-600 mt-1">
+                      ✓ Dr. {getDisplayName(formData.doctor_firstName, formData.doctor_lastName)}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     Visited Before? *
                   </label>
                   <select
@@ -428,16 +371,16 @@ const AppointmentForm = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white text-gray-900 appearance-none cursor-pointer disabled:bg-gray-100"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-white text-gray-900 appearance-none cursor-pointer disabled:bg-gray-100"
                   >
-                    <option value="">Select Option</option>
+                    <option value="">Select</option>
                     <option value="yes">Yes</option>
                     <option value="no">No</option>
                   </select>
                 </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                <div className="col-span-2">
+                  <label className="block text-xs font-semibold text-gray-900 mb-0.5">
                     Address *
                   </label>
                   <input
@@ -447,8 +390,8 @@ const AppointmentForm = () => {
                     onChange={handleChange}
                     required
                     disabled={loading}
-                    className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
-                    placeholder="Enter your complete address"
+                    className="w-full px-2.5 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-gray-900 bg-white disabled:bg-gray-100"
+                    placeholder="Enter your address"
                   />
                 </div>
               </div>
@@ -456,7 +399,7 @@ const AppointmentForm = () => {
               <button
                 type="submit"
                 disabled={loading || loadingDoctors}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-lg shadow-lg transition disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg transition disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-3 flex-shrink-0"
               >
                 {loading ? (
                   <>
@@ -464,14 +407,14 @@ const AppointmentForm = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>Booking...</span>
+                    Booking...
                   </>
                 ) : (
                   <>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span>Book Appointment</span>
+                    Book Appointment
                   </>
                 )}
               </button>
