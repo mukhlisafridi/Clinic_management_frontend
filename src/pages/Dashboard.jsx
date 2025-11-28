@@ -112,6 +112,7 @@ export default function Dashboard() {
     }
   };
 
+  // ✅ Delete message
   const deleteMessage = async (messageId) => {
     if (window.confirm("Are you sure you want to delete this message?")) {
       try {
@@ -128,6 +129,28 @@ export default function Dashboard() {
     }
   };
 
+  // ✅ Delete doctor
+  const deleteDoctor = async (doctorId) => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this doctor? This action cannot be undone."
+      )
+    ) {
+      try {
+        const response = await axios.delete(`/user/doctor/delete/${doctorId}`);
+
+        if (response.data.success) {
+          setDoctors(doctors.filter((d) => d.id !== doctorId));
+          toast.success("Doctor deleted successfully!");
+        }
+      } catch (error) {
+        console.error("Error deleting doctor:", error);
+        toast.error("Failed to delete doctor");
+      }
+    }
+  };
+
+  // ✅ Update appointment - auto-delete if rejected
   const updateAppointmentStatus = async (id, status) => {
     if (status === "Rejected") {
       if (
@@ -266,6 +289,7 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pb-4">
+        {/* Create Admin Modal */}
         {showAddAdmin && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
@@ -334,6 +358,7 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
           <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
@@ -392,6 +417,7 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Tabs */}
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="flex border-b overflow-x-auto">
             <button
@@ -431,6 +457,7 @@ export default function Dashboard() {
             </button>
           </div>
 
+          {/* Appointments Tab */}
           {activeTab === "appointments" && (
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
@@ -575,6 +602,7 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Doctors Tab */}
           {activeTab === "doctors" && (
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
@@ -686,12 +714,22 @@ export default function Dashboard() {
                 </div>
               )}
 
+              {/* ✅ DOCTORS GRID WITH DELETE BUTTON */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {doctors.map((doctor) => (
                   <div
                     key={doctor.id}
-                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition"
+                    className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition relative"
                   >
+                    {/* ✅ DELETE BUTTON - Top Right */}
+                    <button
+                      onClick={() => deleteDoctor(doctor.id)}
+                      className="absolute top-4 right-4 text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-full transition"
+                      title="Delete Doctor"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+
                     <div className="flex items-center gap-4 mb-4">
                       <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                         <User className="w-8 h-8 text-blue-600" />
@@ -715,6 +753,8 @@ export default function Dashboard() {
               </div>
             </div>
           )}
+
+          {/* Messages Tab */}
           {activeTab === "messages" && (
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
@@ -774,7 +814,7 @@ export default function Dashboard() {
                                   msg.createdAt || Date.now()
                                 ).toLocaleDateString()}
                               </span>
-
+                              {/* ✅ DELETE MESSAGE BUTTON */}
                               <button
                                 onClick={() => deleteMessage(msg._id)}
                                 className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1.5 rounded-full transition"
