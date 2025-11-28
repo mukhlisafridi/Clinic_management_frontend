@@ -46,7 +46,7 @@ const LoginPage = () => {
     <>
       <Navbar />
       
-      <div className="bg-gradient-to-br from-blue-50 via-white to-blue-50 min-h-screen flex items-center justify-center pt-16 px-4">
+      <div className="bg-gradient-to-br from-blue-50 via-white to-blue-50 min-h-screen flex items-center justify-center py-16 px-4">
         <Toaster position="top-right" reverseOrder={false} />
         
         <div className="max-w-4xl w-full mx-4 bg-white rounded-xl shadow-2xl overflow-hidden flex">
