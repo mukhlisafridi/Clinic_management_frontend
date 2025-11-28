@@ -49,7 +49,7 @@ const LoginPage = () => {
       <div className="bg-gradient-to-br from-blue-50 via-white to-blue-50 h-screen flex items-center justify-center overflow-hidden pt-16">
         <Toaster position="top-right" reverseOrder={false} />
         
-        <div className="max-w-4xl w-full mx-4 bg-white rounded-xl shadow-2xl overflow-hidden flex h-[80vh]">
+        <div className="max-w-4xl w-full mx-4 bg-white rounded-xl shadow-2xl overflow-hidden flex py-12">
           
           {/* Left Side - Login Form */}
           <div className="w-full lg:w-1/2 p-6 md:p-8 flex flex-col justify-center">
